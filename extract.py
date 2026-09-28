@@ -17,7 +17,7 @@ lib=ctypes.CDLL('/Applications/Anki.app/Contents/Resources/app_packages/anki_aud
 lib.ZSTD_decompress.argtypes=[ctypes.c_void_p,ctypes.c_size_t,ctypes.c_void_p,ctypes.c_size_t];lib.ZSTD_decompress.restype=ctypes.c_size_t
 def decompress(b):
  out=ctypes.create_string_buffer(100000000);n=lib.ZSTD_decompress(out,len(out),b,len(b));assert n<len(out);return out.raw[:n]
-with zipfile.ZipFile(ROOT.parent/'Exam PA.apkg') as z:
+with zipfile.ZipFile(ROOT/'Exam PA.apkg') as z:
  with tempfile.TemporaryDirectory() as d:
   p=Path(d)/'c.db';p.write_bytes(decompress(z.read('collection.anki21b')));c=sqlite3.connect(p)
   cards=[]
@@ -46,7 +46,7 @@ def fields(b):
   elif wire==0:v,i=varint(b,i)
   else:raise ValueError(wire)
   yield tag>>3,v
-with zipfile.ZipFile(ROOT.parent/'Exam PA.apkg') as z:
+with zipfile.ZipFile(ROOT/'Exam PA.apkg') as z:
  entries=[v for k,v in fields(decompress(z.read('media'))) if k==1]
  mapping={}
  for index,entry in enumerate(entries):
