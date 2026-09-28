@@ -37,7 +37,7 @@
 
 `npm test` 檢查文字比對；`python3 -m unittest discover -s tests -p "test_*.py"` 檢查 API 權限、輸入與錯誤處理（使用假回應，不消耗 API）。`extract.py` 保留篩選序號與 Anki note ID，可追溯每張原卡；重建需本機 Anki 附帶的 zstd 函式庫。`cards.json` 包含完整答案 HTML、文字及原卡序號。
 
-版本：2026-09-29-11。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
+版本：2026-09-29-12。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
 
 ## 新增題庫
 
