@@ -1,0 +1,13 @@
+{
+  "name": "exam-pa-practice-api",
+  "main": "backend/worker.js",
+  "compatibility_date": "2026-09-28",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGIN": "https://vickuo108.github.io",
+    "OPENAI_MODEL": "gpt-4.1-mini"
+  },
+  "ratelimits": [{"name":"AI_LIMITER","namespace_id":"2026092901","simple":{"limit":8,"period":60}}],
+  "observability": {"enabled":true}
+}

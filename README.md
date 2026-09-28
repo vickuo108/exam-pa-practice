@@ -4,7 +4,7 @@
 
 ## 網址與新增題目流程
 
-- 網址：https://vickuo108.github.io/exam-pa-practice/ ；本機版：在本資料夾執行 `npm start`，開 http://127.0.0.1:8765/ （有 AI 檢查）。
+- 網址：https://vickuo108.github.io/exam-pa-practice/ ；本機版：在本資料夾執行 `npm start`，開 http://127.0.0.1:8765/ （有 AI 檢查）；線上版亦支援 AI 檢查。
 - 新增題目：在電腦本機版(http://127.0.0.1:8765/)新增或編輯 → 直接寫進 `cards.json` → 推上 GitHub → 手機重新打開就載入新題庫。只新增題目不用升版本號。
 - 手機上新增或編輯的題目只存在該瀏覽器，不會同步；同一題若在手機改過，手機會一直顯示手機版本。
 
@@ -16,7 +16,7 @@
 
 選題 → 輸入英文 → 對答案。琥珀色為你的不同用字，綠色為原卡用字；所有差異直接在同一頁列出。這是文字差異，不是語意評分。題庫支援搜尋與分類，草稿和已練記錄只存在當前瀏覽器，清除網站資料會刪除這些進度。
 
-載入完畢後，題庫、原卡附圖和文字比對可由 Service Worker 離線使用。安裝到手機主畫面及通勤使用，需待部署至 HTTPS 網址。更新機制已包含版本檢查與更新說明；目前尚未對外部署。
+載入完畢後，題庫、原卡附圖和文字比對可由 Service Worker 離線使用。安裝到手機主畫面及通勤使用，需待部署至 HTTPS 網址。更新機制已包含版本檢查與更新說明；已部署至 GitHub Pages。
 
 ## OpenAI 答案檢查
 
@@ -28,7 +28,7 @@
 
 接受同義句與不同語序；分辨可接受差異、遺漏、意思寫反和文法問題，必要時給最小修改。這不是官方 SOA 評分。
 
-服務只綁定 127.0.0.1，具有 Host／Origin 檢查、每次啟動的防跨站 token、長度限制、每分鐘 8 次限制、單次並行限制和 50 秒上游逾時。無效金鑰、額度不足和逾時會顯示可讀錯誤，不回傳供應商原始錯誤內容。對外部署仍需另加登入與正式伺服器；目前尚未上線。
+服務只綁定 127.0.0.1，具有 Host／Origin 檢查、每次啟動的防跨站 token、長度限制、每分鐘 8 次限制、單次並行限制和 50 秒上游逾時。無效金鑰、額度不足和逾時會顯示可讀錯誤，不回傳供應商原始錯誤內容。這些限制適用本機版；線上版使用 Cloudflare 後端與獨立使用碼保護，見下方部署說明。
 
 官方參考：https://developers.openai.com/api/docs/guides/text 、https://developers.openai.com/api/docs/models/gpt-4.1-mini
 
@@ -36,7 +36,7 @@
 
 `npm test` 檢查文字比對；`python3 -m unittest discover -s tests -p "test_*.py"` 檢查 API 權限、輸入與錯誤處理（使用假回應，不消耗 API）。`extract.py` 保留篩選序號與 Anki note ID，可追溯每張原卡；重建需本機 Anki 附帶的 zstd 函式庫。`cards.json` 包含完整答案 HTML、文字及原卡序號。
 
-版本：2026-09-29-9。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
+版本：2026-09-29-10。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
 
 ## 新增題庫
 
@@ -56,6 +56,32 @@
 
 ## GitHub Pages 版
 
-在 github.io 網址開啟時，新增與編輯題目改存目前瀏覽器的 localStorage，不需要本機伺服器。重新整理後仍會載入；不跨裝置同步，清除網站資料會刪除。儲存失敗時保留表單，不顯示成功。AI 檢查尚未部署後端，可使用「複製給 AI 檢查」。手機上新增或編輯的題目只存在該瀏覽器；同一題若在手機改過，會一直顯示手機版本。建議在電腦本機版新增、編輯，推上 GitHub 後手機打開即自動載入新題庫（題庫採網路優先，離線時用快取）。本機版本仍使用原有伺服器保存方式。
+在 github.io 網址開啟時，新增與編輯題目改存目前瀏覽器的 localStorage，不需要本機伺服器。重新整理後仍會載入；不跨裝置同步，清除網站資料會刪除。儲存失敗時保留表單，不顯示成功。AI 檢查已連接 Cloudflare 後端，輸入專用使用碼即可使用。手機上新增或編輯的題目只存在該瀏覽器；同一題若在手機改過，會一直顯示手機版本。建議在電腦本機版新增、編輯，推上 GitHub 後手機打開即自動載入新題庫（題庫採網路優先，離線時用快取）。本機版本仍使用原有伺服器保存方式。
 
 GitHub Pages 使用 `main` / `/ (root)`，網頁檔案都放在根目錄，直接修改後提交即可。本機伺服器只提供網頁需要的檔案，`.env`、`data/`、程式碼等不會被讀到；新增網頁檔案時，要一併加進 `server.py` 的 `STATIC` 清單。舊的 `/dist/` 網址已停用，請改用根目錄網址。
+
+
+## Cloudflare AI 後端
+
+
+後端入口為 `backend/worker.js`，使用既有 OpenAI Responses API 判讀規則。
+GitHub Pages 的 `api-config.js` 只放公開的 Worker 網址，不放任何金鑰或使用碼。
+網頁傳送目前題目與答案，因此自訂題目及編輯後的參考答案也能檢查。
+
+部署順序：
+
+1. `wrangler login`，完成 Cloudflare 登入。
+2. `wrangler deploy`，取得 Worker 網址。
+3. `python3 scripts/configure-secrets.py --pages /Users/kuoyuhsuan/Downloads/API.pages --access-code-file /Users/kuoyuhsuan/Downloads/exam-pa-ai-access.txt`。
+   此工具只將 OpenAI 金鑰讀入記憶體，再透過標準輸入存入 Cloudflare Secrets；不產生含 OpenAI 金鑰的檔案。
+   獨立 AI 使用碼保存於指定的專案外檔案，權限為僅本人可讀寫；請另行安全保存。
+4. 將 Worker 網址填入 `api-config.js` 的 `PA_API_BASE`。
+5. 驗證後推送 `main`；GitHub Pages 仍使用根目錄。
+
+使用 AI 時輸入獨立使用碼，只保存在目前分頁的 sessionStorage，關閉分頁後需重新輸入。
+後端限制 CORS 來源、檢查使用碼及輸入長度、每個 Cloudflare 位置每分鐘最多 8 次有效檢查，並在 50 秒後中止上游請求。
+CORS 本身不是登入保護；使用碼才是權限憑證。頻率限制不是帳戶總額度上限。
+不記錄題目、作答、使用碼或 OpenAI 金鑰；OpenAI 請求使用 `store: false`。
+
+`npm test` 包含後端權限、跨來源、輸入驗證、限制與上游錯誤測試。
+後端網址：https://exam-pa-practice-api.vickuo108.workers.dev 。正式後端已驗證：同義句回覆「可以」、反義句回覆「概念有誤」；無使用碼回覆 401、不允許的 Origin 回覆 403。

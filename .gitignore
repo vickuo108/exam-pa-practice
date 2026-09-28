@@ -5,3 +5,8 @@ __pycache__/
 data/
 *.apkg
 .DS_Store
+
+.dev.vars*
+.wrangler/
+node_modules/
+worker-configuration.d.ts

@@ -60,7 +60,7 @@ class ServerTests(unittest.TestCase):
    with urllib.request.urlopen(self.base+path) as r:return r.status
   except urllib.error.HTTPError as e:return e.code
  def test_static_files_served(self):
-  for path in ('/','/index.html','/app.js','/cards.json','/media-9.png'):self.assertEqual(self.get_status(path),200,path)
+  for path in ('/','/index.html','/app.js','/api-config.js','/cards.json','/media-9.png'):self.assertEqual(self.get_status(path),200,path)
  def test_private_files_hidden(self):
   for path in ('/server.py','/pages_key.py','/.env','/.gitignore','/data/custom-cards.json','/tests/test_server.py','/README.md','/dist/'):self.assertEqual(self.get_status(path),404,path)
 if __name__=='__main__':unittest.main()
