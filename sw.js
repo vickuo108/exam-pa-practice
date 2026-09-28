@@ -1,4 +1,4 @@
-const CACHE='pa-practice-2026-09-29-10';
+const CACHE='pa-practice-2026-09-29-11';
 const ASSETS=["./", "index.html", "app.js", "api-config.js", "diff.js", "local-cards.js", "style.css", "cards.json", "manifest.webmanifest", "icon.svg", "media-13.png", "media-10.png", "media-9.png"];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS))));
 self.addEventListener('activate',event=>event.waitUntil(Promise.all([caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('pa-practice-')&&k!==CACHE).map(k=>caches.delete(k)))),self.clients.claim()])));

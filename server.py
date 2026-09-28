@@ -74,12 +74,28 @@ def make_server(key,port=8765,cards_path=None):
     except OSError:return self.send_json(500,{'error':'儲存失敗，內容仍保留，請稍後再試。'})
     card_list[:]=updated;cards[card['id']]=card
    return self.send_json(200 if editing else 201,{'card':card})
+  def delete_card(self):
+   try:
+    length=int(self.headers.get('Content-Length','0'))
+    if not 0<length<=1000 or self.headers.get_content_type()!='application/json':raise ValueError()
+    card_id=json.loads(self.rfile.read(length)).get('cardId')
+    if not isinstance(card_id,str):raise ValueError()
+   except (ValueError,TypeError,AttributeError):return self.send_json(400,{'error':'請選擇要刪除的題目。'})
+   with card_lock:
+    if card_id not in cards:return self.send_json(404,{'error':'找不到要刪除的題目。'})
+    if len(card_list)<=1:return self.send_json(400,{'error':'題庫至少要保留一題。'})
+    updated=[c for c in card_list if c['id']!=card_id]
+    try:save_cards(updated)
+    except OSError:return self.send_json(500,{'error':'刪除失敗，請稍後再試。'})
+    card_list[:]=updated;del cards[card_id]
+   return self.send_json(200,{'deleted':card_id})
   def do_POST(self):
    if not self.valid_host():return self.send_json(403,{'error':'不允許的存取來源。'})
    origin=self.headers.get('Origin');allowed=(f'http://127.0.0.1:{self.server.server_port}',f'http://localhost:{self.server.server_port}')
    if (origin and origin not in allowed) or not secrets.compare_digest(self.headers.get('X-PA-Token',''),token):return self.send_json(403,{'error':'請重新整理網頁後再試。'})
    if self.path=='/api/cards':return self.add_card()
    if self.path=='/api/cards/edit':return self.add_card(editing=True)
+   if self.path=='/api/cards/delete':return self.delete_card()
    if self.path!='/api/check':return self.send_json(404,{'error':'找不到此功能。'})
    if not key:return self.send_json(503,{'error':'尚未設定 OpenAI 金鑰。'})
    try:

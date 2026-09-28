@@ -18,3 +18,8 @@ export function saveBrowserCard(storage,cards,{id,question,answer}) {
  try{storage.setItem('pa-custom-cards',JSON.stringify(saved));}catch{throw new Error('此瀏覽器無法儲存題目，請先複製內容備份，或釋放儲存空間後重試。');}
  return card;
 }
+export function deleteBrowserCard(storage,id){
+ let saved=[];try{saved=JSON.parse(storage.getItem?.('pa-custom-cards')||'[]')}catch{}
+ if(!Array.isArray(saved))saved=[];
+ try{storage.setItem('pa-custom-cards',JSON.stringify(saved.filter(c=>c.id!==id)));}catch{throw new Error('此瀏覽器無法刪除題目，請稍後重試。');}
+}

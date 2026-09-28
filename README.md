@@ -7,6 +7,7 @@
 - 網址：https://vickuo108.github.io/exam-pa-practice/ ；本機版：在本資料夾執行 `npm start`，開 http://127.0.0.1:8765/ （有 AI 檢查）；線上版亦支援 AI 檢查。
 - 新增題目：在電腦本機版(http://127.0.0.1:8765/)新增或編輯 → 直接寫進 `cards.json` → 推上 GitHub → 手機重新打開就載入新題庫。只新增題目不用升版本號。
 - 手機上新增或編輯的題目只存在該瀏覽器，不會同步；同一題若在手機改過，手機會一直顯示手機版本。
+- 刪除題目：編輯視窗底部「刪除題目」。電腦本機版會從 `cards.json` 移除（推上 GitHub 後手機同步消失）；手機只能刪除手機上自己新增的題目，電腦推上來的題目要在電腦版刪除。刪除原本 110 題之一後，重新執行 `extract.py` 會再加回來。
 
 ## 本機開啟
 
@@ -36,7 +37,7 @@
 
 `npm test` 檢查文字比對；`python3 -m unittest discover -s tests -p "test_*.py"` 檢查 API 權限、輸入與錯誤處理（使用假回應，不消耗 API）。`extract.py` 保留篩選序號與 Anki note ID，可追溯每張原卡；重建需本機 Anki 附帶的 zstd 函式庫。`cards.json` 包含完整答案 HTML、文字及原卡序號。
 
-版本：2026-09-29-10。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
+版本：2026-09-29-11。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
 
 ## 新增題庫
 

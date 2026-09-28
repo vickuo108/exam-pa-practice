@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {saveBrowserCard} from '../local-cards.js';
+import {saveBrowserCard,deleteBrowserCard} from '../local-cards.js';
 const storage=()=>({setItem(k,v){this[k]=v},getItem(k){return this[k]??null}});
 test('new question survives reload and escapes HTML',()=>{const s=storage();const c=saveBrowserCard(s,[],{question:'Q',answer:'<script>alert(1)</script>\nA'});assert.equal(JSON.parse(s['pa-custom-cards'])[0].id,c.id);assert.ok(c.answerHtml.includes('&lt;script&gt;'));assert.ok(c.answerHtml.includes('<br>'));});
 test('edit preserves ID, category and pictures, replaces saved override',()=>{const s=storage();const c={id:'1',category:'定義',question:'Q',answer:'A',answerHtml:'<p>A</p><img src="media-9.png">'};const edit=saveBrowserCard(s,[c],{id:'1',question:'Q',answer:'B'});saveBrowserCard(s,[edit],{id:'1',question:'Q2',answer:'C'});const saved=JSON.parse(s['pa-custom-cards']);assert.equal(saved.length,1);assert.equal(saved[0].id,'1');assert.equal(saved[0].category,'定義');assert.ok(saved[0].answerHtml.includes('media-9.png'));});
 test('storage failure and duplicates do not mutate live cards',()=>{const cards=[{id:'1',question:'Q',answer:'A'}];assert.throws(()=>saveBrowserCard(storage(),cards,{question:'Q',answer:'A'}));assert.throws(()=>saveBrowserCard({setItem(){throw Error()}},cards,{question:'new',answer:'A'}));assert.equal(cards.length,1);});
 test('published custom cards are not copied into browser storage',()=>{const s=storage();const published={id:'custom-pc',category:'自訂',question:'PC',answer:'A',answerHtml:'A',custom:true};saveBrowserCard(s,[published],{question:'Phone',answer:'B'});const saved=JSON.parse(s['pa-custom-cards']);assert.equal(saved.length,1);assert.equal(saved[0].question,'Phone');});
+test('delete removes only the chosen browser card',()=>{const s=storage();const a=saveBrowserCard(s,[],{question:'A',answer:'1'});const b=saveBrowserCard(s,[a],{question:'B',answer:'2'});deleteBrowserCard(s,a.id);const saved=JSON.parse(s['pa-custom-cards']);assert.deepEqual(saved.map(c=>c.id),[b.id]);});

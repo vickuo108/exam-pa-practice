@@ -55,6 +55,13 @@ class ServerTests(unittest.TestCase):
   original=next(c for c in json.loads((server.ROOT/'cards.json').read_text()) if '<img' in c['answerHtml'])
   code,data=self.post({'cardId':original['id'],'question':original['question'],'answer':'Updated chart explanation.'},path='/api/cards/edit');self.assertEqual(code,200);self.assertIn('<img',data['card']['answerHtml'])
  def test_edit_invalid_id(self):self.assertEqual(self.post({'cardId':'absent','question':'a','answer':'b'},path='/api/cards/edit')[0],404)
+ def test_delete_card(self):
+  code,data=self.post({'question':'Delete me','answer':'Gone soon.'},path='/api/cards');self.assertEqual(code,201);card_id=data['card']['id']
+  self.assertEqual(self.post({'cardId':card_id},path='/api/cards/delete')[0],200)
+  self.assertNotIn(card_id,[c['id'] for c in json.loads(self.path.read_text())])
+  self.assertEqual(self.post({'cardId':card_id},path='/api/cards/delete')[0],404)
+  self.assertEqual(self.post({'cardId':card_id,'answer':'x'})[0],400)
+ def test_delete_requires_token(self):self.assertEqual(self.post({'cardId':self.card},token=False,path='/api/cards/delete')[0],403)
  def get_status(self,path):
   try:
    with urllib.request.urlopen(self.base+path) as r:return r.status
