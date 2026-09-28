@@ -878,5 +878,13 @@
     "question": "What makes data imbalanced",
     "answer": "Data is imbalanced when most of the target variable's values belong to one category.",
     "answerHtml": "Data is imbalanced when most of the target variable's values belong to one category."
+  },
+  {
+    "id": "custom-c3af7bb4cea54feaaad1824351b1f3ea",
+    "category": "自訂",
+    "question": "Compare and contrast K-Means Clustering and PCA as unsupervised learning approaches.",
+    "answer": "Compare: K-means clustering and PCA are both unsupervised learning methods. They look for useful structure in the data without a target variable to predict.\nContrast: They produce different outputs. K-means groups similar observations into K clusters based on distance. PCA creates new variables (principal components) that are combinations of the original variables, so it reduces the number of dimensions.",
+    "answerHtml": "Compare: K-means clustering and PCA are both unsupervised learning methods. They look for useful structure in the data without a target variable to predict.<br>Contrast: They produce different outputs. K-means groups similar observations into K clusters based on distance. PCA creates new variables (principal components) that are combinations of the original variables, so it reduces the number of dimensions.",
+    "custom": true
   }
 ]
