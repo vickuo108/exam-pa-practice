@@ -1,3 +1,5 @@
+import {saveBrowserCard} from './local-cards.js';
+const browserOnly=location.hostname.endsWith('.github.io');
 import {compare,tokenize} from './diff.js';
 const $=id=>document.getElementById(id),KEY='pa-practice-v1';let cards=[],index=0,filter='all',changes=[],submitted='',aiReady=false,aiToken="",aiRequest=null;
 let editingId=null;
@@ -30,8 +32,9 @@ $('browse').onclick=()=>{renderLibrary();$('library').showModal()};$('close-libr
 function prompt(){return `請幫我檢查 SOA Exam PA 的英文練習答案。原卡答案是比對依據，請勿改寫原卡。接受同義句與不同語序，不要用文字相似度判定對錯。先判斷我的答案是否可以，再依我的句子順序逐項指出意思、遺漏或文法差異，區分可接受的不同寫法與錯誤，最後只在需要時給最小修改版本。保留專有名詞；不提供必要概念清單、不翻譯原卡、不假設官方分數。如果原卡本身可能有錯，另行標示，不要默默更改。\n\n題目：${current().question}\n\n原卡答案：\n${current().answer}\n\n我的答案：\n${$('answer').value}`}
 $('copy').onclick=async()=>{if(!$('answer').value.trim()){notice('先寫下你的答案，再複製給 AI。');return}try{await navigator.clipboard.writeText(prompt());notice('已複製題目、原卡答案與你的答案，可以貼到 AI 對話檢查。')}catch{notice('無法存取剪貼簿，請允許此網站使用剪貼簿後重試。')}};
 $('ai-check').onclick=async()=>{if(!$('answer').value.trim())return;const cardId=current().id,answer=$('answer').value;aiRequest?.abort();const controller=new AbortController();aiRequest=controller;$('ai-check').disabled=true;$('ai-check').textContent='檢查中…';try{const res=await fetch('api/check',{method:'POST',headers:{'Content-Type':'application/json','X-PA-Token':aiToken},body:JSON.stringify({cardId,answer}),signal:controller.signal});const data=await res.json();if(!res.ok)throw new Error(data.error||'暫時無法檢查，請稍後再試。');if(current().id!==cardId||$('answer').value!==answer)return;$('ai-result').textContent=data.feedback;$('ai-result').hidden=false}catch(e){if(e.name!=='AbortError')notice(e.message)}finally{if(aiRequest===controller){$('ai-check').disabled=!aiReady;$('ai-check').textContent='AI 檢查';aiRequest=null}}};
-try{const res=await fetch('cards.json');if(!res.ok)throw Error('題庫載入失敗');cards=await res.json();let custom=[];try{custom=JSON.parse(localStorage.getItem('pa-custom-cards')||'[]');if(!Array.isArray(custom))custom=[]}catch{}try{const response=await fetch('api/cards',{signal:AbortSignal.timeout(5000)});if(response.ok){custom=(await response.json()).cards;try{localStorage.setItem('pa-custom-cards',JSON.stringify(custom))}catch{}}}catch{}for(const c of custom){const n=cards.findIndex(x=>x.id===c.id);if(n<0)cards.push(c);else cards[n]=c;}index=Math.max(0,Math.min(Number(state.index)||0,cards.length-1));if(state.review&&!state.marked[cards[index].id])index=markedIndices()[0]??index;$('total').textContent=cards.length;showCard()}catch(e){$('question').textContent='題庫暫時無法載入';notice('請重新整理，或連上網路後再試。');$('check').disabled=true;$('reveal').disabled=true;$('browse').disabled=true;$('previous').disabled=true;$('next').disabled=true}
-fetch('api/status').then(r=>r.ok?r.json():null).then(s=>{aiReady=!!s?.available;aiToken=s?.token||'';$('ai-check').disabled=!aiReady;if(aiReady)$('ai-status').textContent='OpenAI · '+s.model+'：逐項檢查內容與文法。'}).catch(()=>{});
+try{const res=await fetch('cards.json');if(!res.ok)throw Error('題庫載入失敗');cards=await res.json();let custom=[];try{custom=JSON.parse(localStorage.getItem('pa-custom-cards')||'[]');if(!Array.isArray(custom))custom=[]}catch{}try{if(browserOnly)throw new Error('browser storage');const response=await fetch('api/cards',{signal:AbortSignal.timeout(5000)});if(response.ok){custom=(await response.json()).cards;try{localStorage.setItem('pa-custom-cards',JSON.stringify(custom))}catch{}}}catch{}for(const c of custom){const n=cards.findIndex(x=>x.id===c.id);if(n<0)cards.push(c);else cards[n]=c;}index=Math.max(0,Math.min(Number(state.index)||0,cards.length-1));if(state.review&&!state.marked[cards[index].id])index=markedIndices()[0]??index;$('total').textContent=cards.length;showCard()}catch(e){$('question').textContent='題庫暫時無法載入';notice('請重新整理，或連上網路後再試。');$('check').disabled=true;$('reveal').disabled=true;$('browse').disabled=true;$('previous').disabled=true;$('next').disabled=true}
+if(browserOnly)$('ai-status').textContent='此版本未連接 AI 服務，可複製答案給 AI 檢查。';
+else fetch('api/status').then(r=>r.ok?r.json():null).then(s=>{aiReady=!!s?.available;aiToken=s?.token||'';$('ai-check').disabled=!aiReady;if(aiReady)$('ai-status').textContent='OpenAI · '+s.model+'：逐項檢查內容與文法。'}).catch(()=>{});
 if('serviceWorker'in navigator){let reloading=false;const hadController=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(hadController&&!reloading){reloading=true;location.reload()}});navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(reg=>{const activate=()=>reg.waiting?.postMessage({type:'SKIP_WAITING'});activate();reg.addEventListener('updatefound',()=>reg.installing?.addEventListener('statechange',activate));const update=()=>reg.update().then(activate).catch(()=>{});update();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')update()});window.addEventListener('pageshow',update)}).catch(()=>{});}
 try{const old=localStorage.getItem('pa-version');if(old&&old!==APP_VERSION)notice('已更新：'+CHANGELOG.join(' '));localStorage.setItem('pa-version',APP_VERSION)}catch{}
 
@@ -41,6 +44,7 @@ function openEditor(card=null){
  $('editor-title').textContent=card?'編輯題目':'新增題目';$('save-card').textContent=card?'儲存修改':'新增並開始練習';
  $('new-question').value=card?.question||'';$('new-answer').value=card?.answer||'';
  $('editor-help').textContent=card?'修改後會用新答案比對；原有附圖會保留。':'儲存後加入自訂題庫，可逐字比對與 AI 檢查。';
+ if(browserOnly)$('editor-help').textContent='儲存在目前裝置的瀏覽器，可逐字比對；不會跨裝置同步，清除網站資料會刪除。';
  $('add-dialog').showModal();$('new-question').focus();
 }
 $('new-card').onclick=()=>openEditor();$('edit-current').onclick=()=>openEditor(current());
@@ -51,12 +55,16 @@ $('add-form').onsubmit=async e=>{
  if(!question||!answer){$('add-error').textContent='請填寫題目和參考答案。';return}
  $('save-card').disabled=true;$('save-card').textContent='儲存中…';$('add-error').textContent='';
  try{
+  let data;
+  if(browserOnly){data={card:saveBrowserCard(localStorage,cards,{id:savedId,question,answer})};}
+  else {
   const status=await fetch('api/status',{signal:AbortSignal.timeout(5000)});if(!status.ok)throw new Error('無法連上題庫，請確認本機服務已啟動。');aiToken=(await status.json()).token;
   const response=await fetch(savedId?'api/cards/edit':'api/cards',{method:'POST',headers:{'Content-Type':'application/json','X-PA-Token':aiToken},body:JSON.stringify({question,answer,cardId:savedId}),signal:AbortSignal.timeout(10000)});
-  const data=await response.json();if(!response.ok)throw new Error(data.error||'無法儲存，請稍後重試。');
+  data=await response.json();if(!response.ok)throw new Error(data.error||'無法儲存，請稍後重試。');
+  }
   const editedIndex=cards.findIndex(c=>c.id===data.card.id);if(editedIndex<0)cards.push(data.card);else cards[editedIndex]=data.card;let cached=true;try{localStorage.setItem('pa-custom-cards',JSON.stringify(cards.filter(c=>c.custom||c.edited)))}catch{cached=false}
   $('total').textContent=cards.length;$('add-form').reset();$('add-dialog').close();$('library').close();if(!savedId||!state.marked[data.card.id])state.review=false;go(editedIndex<0?cards.length-1:editedIndex);
-  notice(cached?(savedId?'題目已更新。':'題目已新增，可以開始練習。'):'題目已儲存，但此瀏覽器無法離線保存新題庫。');
+  notice(browserOnly?'已儲存在此瀏覽器，可以開始練習。':cached?(savedId?'題目已更新。':'題目已新增，可以開始練習。'):'題目已儲存，但此瀏覽器無法離線保存新題庫。');
  }catch(error){$('add-error').textContent=error.name==='TypeError'||error.name==='TimeoutError'?'暫時無法連上題庫，輸入內容已保留，請確認連線後重試。':error.message}
  finally{$('save-card').disabled=false;$('save-card').textContent=editingId?'儲存修改':'新增並開始練習'}
 };
