@@ -2,6 +2,11 @@ import ctypes,zipfile,tempfile,sqlite3,os,re,json,html
 from pathlib import Path
 from html.parser import HTMLParser
 ROOT=Path(__file__).resolve().parent
+# Questions added or edited in the local app live in cards.json too; keep them when re-extracting.
+KEEP=[c for c in json.loads((ROOT/'cards.json').read_text()) if c.get('custom') or c.get('edited')] if (ROOT/'cards.json').exists() else []
+def merged(cards):
+ edits={c['id']:c for c in KEEP}
+ return [edits.get(c['id'],c) for c in cards]+[c for c in KEEP if c.get('custom')]
 DEFINITIONS=[1,2,3,5,6,8,9,10,11,12,13,15,17,20,21,24,25,26,28,29,30,31,32,36,37,39,42,43,44,45,46,47,51,52,54,58,61,62,63,64,66,67,68,69,70,71,73,74,75,76,77,78,79,80,81,85,86,94,95,99,101,102,107,108,109,112,117,118,119,122,125,126,129,131,132,142,147,149,156,160]
 EXTRAS=[19,34,35,48,49,50,55,56,59,60,72,82,89,92,96,97,103,110,111,114,116,120,124,133,136,140,141,145,154,158]
 class Plain(HTMLParser):
@@ -28,7 +33,7 @@ with zipfile.ZipFile(ROOT/'Exam PA.apkg') as z:
    if images: print('IMAGE',i,images)
    cards.append(dict(id=str(nid),sourceIndex=i,category='定義' if i in DEFINITIONS else '比較與優缺點',question=plain(f[0]),answer=plain(f[1]),answerHtml=f[1]))
   assert len(cards)==110
-  (ROOT/'cards.json').write_text(json.dumps(cards,ensure_ascii=False,indent=2))
+  (ROOT/'cards.json').write_text(json.dumps(merged(cards),ensure_ascii=False,indent=2))
   print('Extracted',len(cards),'cards')
 # Anki's current media index is a protobuf list. Preserve referenced images.
 def varint(b,i):
@@ -59,4 +64,4 @@ with zipfile.ZipFile(ROOT/'Exam PA.apkg') as z:
    filename='media-'+mapping[html.unescape(name)]+Path(name).suffix
    (ROOT/filename).write_bytes(raw)
    card['answerHtml']=card['answerHtml'].replace(name,filename)
- (ROOT/'cards.json').write_text(json.dumps(cards,ensure_ascii=False,indent=2))
+ (ROOT/'cards.json').write_text(json.dumps(merged(cards),ensure_ascii=False,indent=2))

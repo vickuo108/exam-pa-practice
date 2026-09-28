@@ -10,7 +10,10 @@ export function saveBrowserCard(storage,cards,{id,question,answer}) {
  const card={...original,id:id||'custom-'+globalThis.crypto.randomUUID(),category:original?.category||'自訂',question,answer,
  answerHtml:original?.answer===answer?original.answerHtml:'<p>'+escape(answer).replace(/\n/g,'<br>')+'</p>'+pictures.join(''),
  custom:original?!!original.custom:true,edited:!!original};
- const saved=cards.filter(c=>(c.custom||c.edited)&&c.id!==id);
+ // Keep only this browser's own additions and edits; published cards come from cards.json.
+ let saved=[];try{saved=JSON.parse(storage.getItem?.('pa-custom-cards')||'[]')}catch{}
+ if(!Array.isArray(saved))saved=[];
+ saved=saved.filter(c=>c.id!==id);
  saved.push(card);
  try{storage.setItem('pa-custom-cards',JSON.stringify(saved));}catch{throw new Error('此瀏覽器無法儲存題目，請先複製內容備份，或釋放儲存空間後重試。');}
  return card;

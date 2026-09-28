@@ -6,7 +6,7 @@ import server
 class ServerTests(unittest.TestCase):
  @classmethod
  def setUpClass(cls):
-  cls.temp=tempfile.TemporaryDirectory();cls.path=Path(cls.temp.name)/'custom.json'
+  cls.temp=tempfile.TemporaryDirectory();cls.path=Path(cls.temp.name)/'cards.json';cls.path.write_text((server.ROOT/'cards.json').read_text())
   cls.server=server.make_server('test-only-placeholder',0,cls.path);cls.thread=threading.Thread(target=cls.server.serve_forever,daemon=True);cls.thread.start();cls.base='http://127.0.0.1:'+str(cls.server.server_port)
   cls.status=json.load(urllib.request.urlopen(cls.base+'/api/status'));cls.card=json.loads((server.ROOT/'cards.json').read_text())[0]['id']
  @classmethod
@@ -34,13 +34,13 @@ class ServerTests(unittest.TestCase):
   body={'question':'New <test> question','answer':'A reference <script>alert(1)</script>\nSecond line'}
   code,data=self.post(body,path='/api/cards');self.assertEqual(code,201);card=data['card']
   self.assertEqual(card['answer'],body['answer']);self.assertNotIn('<script>',card['answerHtml'])
-  saved=json.loads(self.path.read_text());self.assertEqual(saved[0]['id'],card['id'])
+  saved=json.loads(self.path.read_text());self.assertEqual(saved[-1]['id'],card['id']);self.assertGreater(len(saved),110)
   self.assertEqual(self.post(body,path='/api/cards')[0],409)
   with patch.object(server,'review',return_value='判斷：可以') as review:
    code,_=self.post({'cardId':card['id'],'answer':'A reference'});self.assertEqual(code,200);self.assertEqual(review.call_args.args[1]['answer'],body['answer'])
   restarted=server.make_server('',0,self.path);thread=threading.Thread(target=restarted.serve_forever,daemon=True);thread.start()
   try:
-   result=json.load(urllib.request.urlopen('http://127.0.0.1:'+str(restarted.server_port)+'/api/cards'));self.assertEqual(result['cards'][0]['id'],card['id'])
+   result=json.load(urllib.request.urlopen('http://127.0.0.1:'+str(restarted.server_port)+'/api/cards'));self.assertIn(card['id'],[c['id'] for c in result['cards']])
   finally:restarted.shutdown();restarted.server_close();thread.join()
  def test_add_requires_token(self):self.assertEqual(self.post({},token=False,path='/api/cards')[0],403)
  def test_add_rejects_blank(self):self.assertEqual(self.post({'question':' ','answer':'text'},path='/api/cards')[0],400)

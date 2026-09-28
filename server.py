@@ -18,19 +18,16 @@ def review(key,card,answer):
  if not text:raise ValueError('Empty model response')
  return text
 
-def make_server(key,port=8765,custom_path=None):
- cards={c['id']:c for c in json.loads((ROOT/'cards.json').read_text())};token=secrets.token_urlsafe(32);requests=deque();lock=threading.Lock();busy=threading.BoundedSemaphore(1)
- custom_path=Path(custom_path) if custom_path is not None else ROOT/'data/custom-cards.json'
- custom_cards=json.loads(custom_path.read_text()) if custom_path.exists() else []
- for card in custom_cards:cards[card['id']]=card
+def make_server(key,port=8765,cards_path=None):
+ cards_path=Path(cards_path) if cards_path is not None else ROOT/'cards.json'
+ card_list=json.loads(cards_path.read_text());cards={c['id']:c for c in card_list};token=secrets.token_urlsafe(32);requests=deque();lock=threading.Lock();busy=threading.BoundedSemaphore(1)
  card_lock=threading.Lock()
- def save_custom(updated):
-  custom_path.parent.mkdir(parents=True,exist_ok=True)
-  fd,name=tempfile.mkstemp(prefix='.cards-',dir=custom_path.parent)
+ def save_cards(updated):
+  fd,name=tempfile.mkstemp(prefix='.cards-',dir=cards_path.parent)
   try:
    with os.fdopen(fd,'w') as f:
     json.dump(updated,f,ensure_ascii=False,indent=2);f.flush();os.fsync(f.fileno())
-   os.replace(name,custom_path)
+   os.replace(name,cards_path)
   finally:
    if os.path.exists(name):os.unlink(name)
  class Handler(SimpleHTTPRequestHandler):
@@ -46,7 +43,7 @@ def make_server(key,port=8765,custom_path=None):
   def do_GET(self):
    if not self.valid_host():return self.send_json(403,{'error':'不允許的存取來源。'})
    if self.path=='/api/cards':
-    with card_lock:return self.send_json(200,{'cards':list(custom_cards)})
+    with card_lock:return self.send_json(200,{'cards':[c for c in card_list if c.get('custom') or c.get('edited')]})
    if self.path=='/api/status':return self.send_json(200,{'available':bool(key),'model':MODEL,'token':token})
    if self.path.startswith('/api/'):return self.send_json(404,{'error':'找不到此功能。'})
    if not STATIC.fullmatch(self.path.split('?')[0]):return self.send_error(404)
@@ -69,13 +66,13 @@ def make_server(key,port=8765,custom_path=None):
      images=re.findall(r'<img[^>]*src=["\']media-\d+\.(?:png|jpg|jpeg|webp|gif)["\'][^>]*>',old['answerHtml'],re.I)
      answer_html=old['answerHtml'] if answer==old['answer'] else html.escape(answer).replace('\n','<br>')+''.join(images)
      card={**old,'question':question,'answer':answer,'answerHtml':answer_html,'edited':True}
-     updated=[c for c in custom_cards if c['id']!=card_id]+[card]
+     updated=[card if c['id']==card_id else c for c in card_list]
     else:
      card={'id':'custom-'+uuid.uuid4().hex,'category':'自訂','question':question,'answer':answer,'answerHtml':html.escape(answer).replace('\n','<br>'),'custom':True}
-     updated=custom_cards+[card]
-    try:save_custom(updated)
+     updated=card_list+[card]
+    try:save_cards(updated)
     except OSError:return self.send_json(500,{'error':'儲存失敗，內容仍保留，請稍後再試。'})
-    custom_cards[:]=updated;cards[card['id']]=card
+    card_list[:]=updated;cards[card['id']]=card
    return self.send_json(200 if editing else 201,{'card':card})
   def do_POST(self):
    if not self.valid_host():return self.send_json(403,{'error':'不允許的存取來源。'})
