@@ -4,7 +4,7 @@
 
 ## 本機開啟
 
-在本資料夾執行 `npm start`，開啟 http://127.0.0.1:8765/ 。若只用靜態伺服器服務 `dist`，只能使用題庫與逐字比對，沒有 AI 判讀。不要直接雙擊 HTML，題庫載入和離線功能需要 HTTP／HTTPS。
+在本資料夾執行 `npm start`，開啟 http://127.0.0.1:8765/ 。若只用一般靜態伺服器開啟，只能使用題庫與逐字比對，沒有 AI 判讀。不要直接雙擊 HTML，題庫載入和離線功能需要 HTTP／HTTPS。
 
 ## 使用方式
 
@@ -28,7 +28,7 @@
 
 ## 驗證與來源
 
-`npm test` 檢查文字比對；`python3 -m unittest discover -s tests -p "test_*.py"` 檢查 API 權限、輸入與錯誤處理（使用假回應，不消耗 API）。`extract.py` 保留篩選序號與 Anki note ID，可追溯每張原卡；重建需本機 Anki 附帶的 zstd 函式庫。`dist/cards.json` 包含完整答案 HTML、文字及原卡序號。
+`npm test` 檢查文字比對；`python3 -m unittest discover -s tests -p "test_*.py"` 檢查 API 權限、輸入與錯誤處理（使用假回應，不消耗 API）。`extract.py` 保留篩選序號與 Anki note ID，可追溯每張原卡；重建需本機 Anki 附帶的 zstd 函式庫。`cards.json` 包含完整答案 HTML、文字及原卡序號。
 
 版本：2026-09-28-6（本機 OpenAI 版本）。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
 
@@ -52,4 +52,4 @@
 
 在 github.io 網址開啟時，新增與編輯題目改存目前瀏覽器的 localStorage，不需要本機伺服器。重新整理後仍會載入；不跨裝置同步，清除網站資料會刪除。儲存失敗時保留表單，不顯示成功。AI 檢查尚未部署後端，可使用「複製給 AI 檢查」。本機版本仍使用原有伺服器保存方式。
 
-GitHub Pages 使用 `main` / `/ (root)`，根目錄直接提供練習本，沒有轉址。修改 `dist/` 後執行 `python3 scripts/publish-static.py`，再將根目錄同步產出的檔案一起提交。舊 `/dist/` 入口仍保留；同一瀏覽器的題庫與進度共用，不需搬移。
+GitHub Pages 使用 `main` / `/ (root)`，網頁檔案都放在根目錄，直接修改後提交即可。本機伺服器只提供網頁需要的檔案，`.env`、`data/`、程式碼等不會被讀到；新增網頁檔案時，要一併加進 `server.py` 的 `STATIC` 清單。`dist/` 只剩轉址頁：舊網址會自動跳到根目錄，並停用舊的離線快取；同一瀏覽器的題庫與進度共用，不需搬移。

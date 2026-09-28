@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {compare,tokenize} from '../dist/diff.js';
+import test from 'node:test';import assert from 'node:assert/strict';import {compare,tokenize} from '../diff.js';
 const changes=(a,b)=>compare(a,b).filter(g=>g.type==='change');
 test('ignores capitalization and punctuation only',()=>assert.deepEqual(changes('Some predictors include information.','some predictors include information!'),[]));
 test('detects a missing negation',()=>assert.deepEqual(changes('information is not available','information is available'),[{type:'change',missing:['not'],extra:[]}]));

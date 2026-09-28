@@ -28,7 +28,7 @@ with zipfile.ZipFile(ROOT.parent/'Exam PA.apkg') as z:
    if images: print('IMAGE',i,images)
    cards.append(dict(id=str(nid),sourceIndex=i,category='定義' if i in DEFINITIONS else '比較與優缺點',question=plain(f[0]),answer=plain(f[1]),answerHtml=f[1]))
   assert len(cards)==110
-  (ROOT/'dist/cards.json').write_text(json.dumps(cards,ensure_ascii=False,indent=2))
+  (ROOT/'cards.json').write_text(json.dumps(cards,ensure_ascii=False,indent=2))
   print('Extracted',len(cards),'cards')
 # Anki's current media index is a protobuf list. Preserve referenced images.
 def varint(b,i):
@@ -57,6 +57,6 @@ with zipfile.ZipFile(ROOT.parent/'Exam PA.apkg') as z:
    raw=z.read(mapping[html.unescape(name)])
    if raw[:4]==b'\x28\xb5\x2f\xfd':raw=decompress(raw)
    filename='media-'+mapping[html.unescape(name)]+Path(name).suffix
-   (ROOT/'dist'/filename).write_bytes(raw)
+   (ROOT/filename).write_bytes(raw)
    card['answerHtml']=card['answerHtml'].replace(name,filename)
- (ROOT/'dist/cards.json').write_text(json.dumps(cards,ensure_ascii=False,indent=2))
+ (ROOT/'cards.json').write_text(json.dumps(cards,ensure_ascii=False,indent=2))
