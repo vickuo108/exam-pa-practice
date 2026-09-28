@@ -37,7 +37,7 @@
 
 `npm test` 檢查文字比對；`python3 -m unittest discover -s tests -p "test_*.py"` 檢查 API 權限、輸入與錯誤處理（使用假回應，不消耗 API）。`extract.py` 保留篩選序號與 Anki note ID，可追溯每張原卡；重建需本機 Anki 附帶的 zstd 函式庫。`cards.json` 包含完整答案 HTML、文字及原卡序號。
 
-版本：2026-09-29-12。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
+版本：2026-09-29-13。下一次上線或修改快取資產時，同步調整 index.html 的 APP_VERSION / CHANGELOG 與 sw.js 的快取版本。
 
 ## 新增題庫
 
@@ -79,7 +79,7 @@ GitHub Pages 的 `api-config.js` 只放公開的 Worker 網址，不放任何金
 4. 將 Worker 網址填入 `api-config.js` 的 `PA_API_BASE`。
 5. 驗證後推送 `main`；GitHub Pages 仍使用根目錄。
 
-使用 AI 時輸入獨立使用碼，只保存在目前分頁的 sessionStorage，關閉分頁後需重新輸入。
+使用 AI 時輸入獨立使用碼，保存在該裝置瀏覽器的 localStorage，同一裝置只需輸入一次；使用碼錯誤（401）時自動清除並重新詢問。清除網站資料會一併清除使用碼。
 後端限制 CORS 來源、檢查使用碼及輸入長度、每個 Cloudflare 位置每分鐘最多 8 次有效檢查，並在 50 秒後中止上游請求。
 CORS 本身不是登入保護；使用碼才是權限憑證。頻率限制不是帳戶總額度上限。
 不記錄題目、作答、使用碼或 OpenAI 金鑰；OpenAI 請求使用 `store: false`。
