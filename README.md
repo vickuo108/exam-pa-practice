@@ -23,7 +23,7 @@
 
 已接入 Responses API，預設 `gpt-4.1-mini`，可透過 `OPENAI_MODEL` 調整。`npm start` 現在啟動本機 Python 後端，並提供同源 `/api/status` 與 `/api/check`。
 
-金鑰優先使用伺服器環境變數 `OPENAI_API_KEY`；未設定時，直接從 `PA_KEY_PAGES` 指定的 Pages 文件讀入記憶體，預設為使用者 Downloads 裡的 API.pages。不要移動該文件，除非同步修改設定。金鑰不寫入前端、localStorage、日誌或專案檔案。
+金鑰優先使用伺服器環境變數 `OPENAI_API_KEY`；未設定時，直接從 `PA_KEY_PAGES` 指定的 Pages 文件讀入記憶體，預設為本資料夾的 `API.pages`（已被 `.gitignore` 排除，本機伺服器也不會提供這個檔案）。不要移動該文件，除非同步修改設定。金鑰不寫入前端、localStorage、日誌或專案檔案。
 
 按「AI 檢查」會把當題題目、原卡答案文字與你的作答傳給 OpenAI，使用 API 帳戶計費。請求設定 `store: false`；這不等於供應商完全不保留安全監控紀錄。原卡圖片仍可在頁面查看，但 AI 目前只檢查文字，遇到附圖題會說明此限制。
 
@@ -73,7 +73,7 @@ GitHub Pages 的 `api-config.js` 只放公開的 Worker 網址，不放任何金
 
 1. `wrangler login`，完成 Cloudflare 登入。
 2. `wrangler deploy`，取得 Worker 網址。
-3. `python3 scripts/configure-secrets.py --pages /Users/kuoyuhsuan/Downloads/API.pages --access-code-file /Users/kuoyuhsuan/Downloads/exam-pa-ai-access.txt`。
+3. `python3 scripts/configure-secrets.py --pages API.pages --access-code-file /Users/kuoyuhsuan/Downloads/exam-pa-ai-access.txt`。
    此工具只將 OpenAI 金鑰讀入記憶體，再透過標準輸入存入 Cloudflare Secrets；不產生含 OpenAI 金鑰的檔案。
    獨立 AI 使用碼保存於指定的專案外檔案，權限為僅本人可讀寫；請另行安全保存。
 4. 將 Worker 網址填入 `api-config.js` 的 `PA_API_BASE`。

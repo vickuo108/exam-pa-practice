@@ -886,5 +886,13 @@
     "answer": "Compare: K-means clustering and PCA are both unsupervised learning methods. They look for useful structure in the data without a target variable to predict.\nContrast: They produce different outputs. K-means groups similar observations into K clusters based on distance. PCA creates new variables (principal components) that are combinations of the original variables, so it reduces the number of dimensions.",
     "answerHtml": "Compare: K-means clustering and PCA are both unsupervised learning methods. They look for useful structure in the data without a target variable to predict.<br>Contrast: They produce different outputs. K-means groups similar observations into K clusters based on distance. PCA creates new variables (principal components) that are combinations of the original variables, so it reduces the number of dimensions.",
     "custom": true
+  },
+  {
+    "id": "custom-9bcc7953bc0b4620aa3722ce7f190ddb",
+    "category": "自訂",
+    "question": "Standardized in lasso model",
+    "answer": "The lasso regulation term is the sum of the absolute values of model coefficients. Variables with a larger scale typically have smaller coefficients, and variables with a smaller scale typically have larger coefficients. Without standardizing, the penalty will shrink the smaller-scale variables more, because it only looks at coefficient size, not variable scale.",
+    "answerHtml": "The lasso regulation term is the sum of the absolute values of model coefficients. Variables with a larger scale typically have smaller coefficients, and variables with a smaller scale typically have larger coefficients. Without standardizing, the penalty will shrink the smaller-scale variables more, because it only looks at coefficient size, not variable scale.",
+    "custom": true
   }
 ]

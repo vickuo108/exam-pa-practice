@@ -120,9 +120,9 @@ def make_server(key,port=8765,cards_path=None):
 if __name__=='__main__':
  key=os.environ.get('OPENAI_API_KEY','')
  if not key:
-  path=os.environ.get('PA_KEY_PAGES',str(Path.home()/'Downloads/API.pages'))
+  path=os.environ.get('PA_KEY_PAGES',str(ROOT/'API.pages'))
   try:key=load_key(path)
-  except Exception:print('無法讀取 OpenAI 金鑰；請檢查 PA_KEY_PAGES 路徑。',flush=True);raise SystemExit(1)
+  except Exception:key='';print('無法讀取 OpenAI 金鑰（請檢查 PA_KEY_PAGES 路徑）；AI 檢查先關閉，題庫與新增題目照常使用。',flush=True)
  server=make_server(key);print('PA 練習本：http://127.0.0.1:8765/ · '+MODEL,flush=True)
  try:server.serve_forever()
  except KeyboardInterrupt:server.server_close()
