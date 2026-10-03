@@ -1,4 +1,4 @@
-const CACHE='pa-practice-2026-09-29-13';
+const CACHE='pa-practice-2026-10-03-14';
 const ASSETS=["./", "index.html", "app.js", "api-config.js", "diff.js", "local-cards.js", "style.css", "cards.json", "manifest.webmanifest", "icon.svg", "media-13.png", "media-10.png", "media-9.png"];
 // cache:'reload' skips the browser HTTP cache (GitHub Pages max-age=600), so a new version never stores the previous version's files.
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS.map(url=>new Request(url,{cache:'reload'}))))));
