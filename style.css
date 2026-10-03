@@ -10,3 +10,5 @@
 
 .library-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line)}#card-list .library-row>button{border:0}#card-list .library-row>button:first-child{flex:1;min-width:0}#card-list .library-row>.edit-row{width:auto;flex:none;align-items:center;padding:10px;font-size:13px}.question-tools .eyebrow{margin-right:auto}#edit-current{font-size:13px;padding:8px}.question-tools{gap:5px}
 .danger{display:block;margin:14px auto 0;background:transparent;color:#b3261e;font-size:14px;min-height:36px}
+
+.diff,.difference-row p{white-space:pre-wrap}
